@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="ic_launcher_round_background">#FFFFFF</color>
+
+    <color name="md_theme_light_primary">#0A56D9</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_background">#F8F9FA</color>
+    <color name="md_theme_light_surface">#FFFFFF</color>
+    <color name="md_theme_light_onSurface">#1F1F1F</color>
+    <color name="md_theme_light_onSurfaceVariant">#44474E</color>
+
+    <color name="md_theme_dark_primary">#A8C7FA</color>
+    <color name="md_theme_dark_onPrimary">#062E6F</color>
+    <color name="md_theme_dark_background">#121212</color>
+    <color name="md_theme_dark_surface">#1E1E1E</color>
+    <color name="md_theme_dark_onSurface">#E3E3E3</color>
+    <color name="md_theme_dark_onSurfaceVariant">#C4C7C5</color>
+</resources>
