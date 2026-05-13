@@ -8,17 +8,53 @@
     android:fitsSystemWindows="true"
     android:background="?android:attr/colorBackground">
 
-    <TextView
-        android:id="@+id/tvAppTitle"
+    <LinearLayout
+        android:id="@+id/topBarContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/app_full_title"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnPrimary"
-        android:gravity="center"
-        android:padding="16dp"
-        android:background="?attr/colorPrimary" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp"
+        android:background="?attr/colorSurface"
+        android:elevation="8dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@mipmap/ic_launcher_round"
+            android:contentDescription="Petrol Calculator Logo"
+            android:layout_marginEnd="16dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvAppTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Petrol Calculator"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                android:letterSpacing="-0.02"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BUDI MADANI Edition"
+                android:textSize="13sp"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:layout_marginTop="2dp"/>
+
+        </LinearLayout>
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/fragmentContainer"

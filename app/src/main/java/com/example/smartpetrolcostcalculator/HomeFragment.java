@@ -7,8 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,22 +15,30 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
-    // Constant subsidy rate based on assignment requirement
     private static final double BUDI_SUBSIDY_RATE = 1.99;
 
-    // UI components
     private Spinner spinnerPetrolType;
-    private EditText etPetrolPrice, etFuelUsage;
-    private RadioButton rbEligibleYes, rbEligibleNo;
-    private Button btnCalculate, btnReset;
-    private TextView tvTotalPetrolCost, tvBudiRebate, tvTotalSaving;
+    private MaterialButtonToggleGroup toggleInputMode;
+    private TextInputLayout tilMainInput;
+    private TextInputEditText etMainInput, etPetrolPrice;
+    private MaterialSwitch switchBudi;
+    private Button btnCalculate;
+
+    private TextView tvTotalCost, tvTotalCostLabel;
+    private View cardSummary;
+    private TextView tvSummaryLiters, tvSummaryPumpPrice, tvSummaryBudiPrice;
 
     public HomeFragment() {
-        // Required empty public constructor for Fragment
+        // Required empty constructor
     }
 
     @Nullable
@@ -41,144 +47,145 @@ public class HomeFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        // Connect this Java Fragment to fragment_home.xml
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // Link XML views with Java variables
         spinnerPetrolType = view.findViewById(R.id.spinnerPetrolType);
+        toggleInputMode = view.findViewById(R.id.toggleInputMode);
+        tilMainInput = view.findViewById(R.id.tilMainInput);
+        etMainInput = view.findViewById(R.id.etMainInput);
         etPetrolPrice = view.findViewById(R.id.etPetrolPrice);
-        etFuelUsage = view.findViewById(R.id.etFuelUsage);
-        rbEligibleYes = view.findViewById(R.id.rbEligibleYes);
-        rbEligibleNo = view.findViewById(R.id.rbEligibleNo);
+        switchBudi = view.findViewById(R.id.switchBudi);
         btnCalculate = view.findViewById(R.id.btnCalculate);
-        btnReset = view.findViewById(R.id.btnReset);
-        tvTotalPetrolCost = view.findViewById(R.id.tvTotalPetrolCost);
-        tvBudiRebate = view.findViewById(R.id.tvBudiRebate);
-        tvTotalSaving = view.findViewById(R.id.tvTotalSaving);
 
-        // Setup petrol type dropdown
+        tvTotalCostLabel = view.findViewById(R.id.tvTotalCostLabel);
+        tvTotalCost = view.findViewById(R.id.tvTotalCost);
+
+        cardSummary = view.findViewById(R.id.cardSummary);
+        tvSummaryLiters = view.findViewById(R.id.tvSummaryLiters);
+        tvSummaryPumpPrice = view.findViewById(R.id.tvSummaryPumpPrice);
+        tvSummaryBudiPrice = view.findViewById(R.id.tvSummaryBudiPrice);
+
         setupPetrolSpinner();
 
-        // Calculate button action
+        toggleInputMode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                if (checkedId == R.id.btnModeLiters) {
+                    tilMainInput.setHint("Total Fuel (Liters)");
+                    tvTotalCostLabel.setText("Estimated Final Cost");
+                } else {
+                    tilMainInput.setHint("Total Spend (RM)");
+                    tvTotalCostLabel.setText("Total Spend");
+                }
+
+                etMainInput.setText("");
+                cardSummary.setVisibility(View.GONE);
+                tvTotalCost.setText("RM 0.00");
+            }
+        });
+
         btnCalculate.setOnClickListener(v -> calculatePetrolCost());
 
-        // Reset button action
-        btnReset.setOnClickListener(v -> resetCalculator());
+        switchBudi.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!TextUtils.isEmpty(etMainInput.getText()) && !TextUtils.isEmpty(etPetrolPrice.getText())) {
+                calculatePetrolCost();
+            }
+        });
 
         return view;
     }
 
     private void setupPetrolSpinner() {
-        // Spinner options required by assignment: RON95, RON97, Diesel
-        String[] petrolTypes = {
-                getString(R.string.option_ron95),
-                getString(R.string.option_ron97),
-                getString(R.string.option_diesel)
-        };
-
+        String[] petrolTypes = {"RON95", "RON97", "Diesel"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_item,
                 petrolTypes
         );
-
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPetrolType.setAdapter(adapter);
     }
 
     private void calculatePetrolCost() {
+        String inputText = etMainInput.getText().toString().trim();
         String priceText = etPetrolPrice.getText().toString().trim();
-        String usageText = etFuelUsage.getText().toString().trim();
 
-        // Prevent crash if petrol price is empty
+        if (TextUtils.isEmpty(inputText)) {
+            etMainInput.setError("Required");
+            etMainInput.requestFocus();
+            return;
+        }
+
         if (TextUtils.isEmpty(priceText)) {
-            etPetrolPrice.setError(getString(R.string.error_empty_price));
+            etPetrolPrice.setError("Required");
             etPetrolPrice.requestFocus();
             return;
         }
 
-        // Prevent crash if fuel usage is empty
-        if (TextUtils.isEmpty(usageText)) {
-            etFuelUsage.setError(getString(R.string.error_empty_usage));
-            etFuelUsage.requestFocus();
-            return;
-        }
-
         try {
+            double inputValue = Double.parseDouble(inputText);
             double petrolPrice = Double.parseDouble(priceText);
-            double fuelUsage = Double.parseDouble(usageText);
 
-            // Avoid negative values because petrol price and fuel usage cannot be negative
-            if (petrolPrice < 0 || fuelUsage < 0) {
-                Toast.makeText(requireContext(),
-                        getString(R.string.error_negative_input),
-                        Toast.LENGTH_SHORT).show();
+            if (petrolPrice <= 0 || inputValue < 0) {
+                Toast.makeText(requireContext(), "Please enter valid numbers > 0", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             String petrolType = spinnerPetrolType.getSelectedItem().toString();
-            boolean isEligible = rbEligibleYes.isChecked();
+            boolean isEligible = switchBudi.isChecked();
 
-            // Formula 1: Total petrol cost = fuel usage x petrol price per liter
-            double totalPetrolCost = fuelUsage * petrolPrice;
+            double fuelUsage = 0;
+            double totalPetrolCost = 0;
 
-            // Formula 2:
-            // BUDI rebate = fuel usage x RM1.99
-            // CRITICAL LOGIC: Only apply if petrol type is RON95 AND eligible status is Yes
-            double budiRebate = 0.00;
+            // --- CORRECTED LOGIC ---
+            if (toggleInputMode.getCheckedButtonId() == R.id.btnModeLiters) {
+                // User enters Liters, we calculate the cost normally
+                fuelUsage = inputValue;
+                totalPetrolCost = fuelUsage * petrolPrice;
+            } else {
+                // User enters RM, we reverse-calculate the Liters based on the EFFECTIVE price
+                double effectivePricePerLiter = petrolPrice;
 
-            if (petrolType.equals(getString(R.string.option_ron95)) && isEligible) {
-                budiRebate = fuelUsage * BUDI_SUBSIDY_RATE;
+                if (petrolType.equals("RON95") && isEligible) {
+                    effectivePricePerLiter = petrolPrice - BUDI_SUBSIDY_RATE;
+                    // Prevent app crash if pump price is weirdly lower than subsidy
+                    if (effectivePricePerLiter <= 0) effectivePricePerLiter = 0.01;
+                }
+
+                // Your RM now buys more liters because the effective price is lower!
+                fuelUsage = inputValue / effectivePricePerLiter;
+                totalPetrolCost = fuelUsage * petrolPrice; // Calculate standard cost to show the full receipt
             }
 
-            // Formula 3: Final payable / total saving = total petrol cost - BUDI rebate
+            double budiRebate = 0.00;
+
+            if (petrolType.equals("RON95") && isEligible) {
+                budiRebate = fuelUsage * BUDI_SUBSIDY_RATE;
+                tvSummaryBudiPrice.setText(String.format(Locale.getDefault(), "RM %.2f/L", BUDI_SUBSIDY_RATE));
+            } else if (!petrolType.equals("RON95") && isEligible) {
+                Toast.makeText(requireContext(), "BUDI MADANI is strictly for RON95 users.", Toast.LENGTH_SHORT).show();
+                switchBudi.setChecked(false);
+                tvSummaryBudiPrice.setText("Not Eligible");
+            } else {
+                tvSummaryBudiPrice.setText("Not Applied");
+            }
+
             double finalPayable = totalPetrolCost - budiRebate;
+            if (finalPayable < 0) finalPayable = 0;
 
-            // Display results formatted to 2 decimal places
-            tvTotalPetrolCost.setText(String.format(
-                    Locale.getDefault(),
-                    "Total Petrol Cost: RM %.2f",
-                    totalPetrolCost
-            ));
+            tvTotalCost.setText(String.format(Locale.getDefault(), "RM %.2f", finalPayable));
 
-            tvBudiRebate.setText(String.format(
-                    Locale.getDefault(),
-                    "BUDI Rebate: RM %.2f",
-                    budiRebate
-            ));
+            tvSummaryLiters.setText(String.format(Locale.getDefault(), "%.3f L", fuelUsage));
+            tvSummaryPumpPrice.setText(String.format(Locale.getDefault(), "RM %.2f/L", petrolPrice));
+            cardSummary.setVisibility(View.VISIBLE);
 
-            tvTotalSaving.setText(String.format(
-                    Locale.getDefault(),
-                    "Final Payable: RM %.2f",
-                    finalPayable
-            ));
+            if (budiRebate > 0) {
+                Toast.makeText(requireContext(),
+                        String.format(Locale.getDefault(), "Subsidy Applied! You saved RM %.2f", budiRebate),
+                        Toast.LENGTH_LONG).show();
+            }
 
         } catch (NumberFormatException e) {
-            // Prevent app crash if user enters invalid number format
-            Toast.makeText(requireContext(),
-                    getString(R.string.error_invalid_input),
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Invalid number format", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void resetCalculator() {
-        // Clear inputs
-        etPetrolPrice.setText("");
-        etFuelUsage.setText("");
-
-        // Reset spinner to RON95
-        spinnerPetrolType.setSelection(0);
-
-        // Reset eligibility to No
-        rbEligibleNo.setChecked(true);
-
-        // Reset result text
-        tvTotalPetrolCost.setText(getString(R.string.total_petrol_cost_default));
-        tvBudiRebate.setText(getString(R.string.budi_rebate_default));
-        tvTotalSaving.setText(getString(R.string.total_saving_default));
-
-        // Clear possible input errors
-        etPetrolPrice.setError(null);
-        etFuelUsage.setError(null);
     }
 }
