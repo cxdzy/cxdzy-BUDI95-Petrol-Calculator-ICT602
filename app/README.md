@@ -1,38 +1,54 @@
-# ⛽ Petrol Calculator (BUDI MADANI)
+# ⛽ Smart Petrol Cost Calculator (BUDI MADANI Edition)
 
-A modern Android application designed to estimate total petrol costs in Malaysia and automatically apply the BUDI MADANI fuel subsidy for eligible users. Developed as part of the Mobile Technology (ICT602) coursework.
+A modern, minimalist Android application designed to calculate petrol expenses and dynamically apply the **BUDI MADANI** government subsidy. Developed for **ICT602 - Mobile Application Development**.
 
-## 👨‍💻 Developer Information
-* **Name:** Mohamad Haziq Naqib bin Zaid
-* **Matric No:** 2025181477
-* **Course:** ICT602 - Mobile Technology / CS251
-* **University:** Universiti Teknologi MARA (UiTM)
-
-## ✨ Features
-* **Dynamic Calculations:** Instantly calculates total petrol cost based on fuel usage and price per liter.
-* **BUDI MADANI Integration:** Automatically applies the RM1.99/L subsidy rebate strictly for eligible RON95 users.
-* **Modern UI/UX:** Built with Material Design 3, featuring floating cards, modern input fields, and a custom launch screen animation.
-* **Adaptive Theming:** Fully supports automatic switching between Android's Light and Dark modes.
-* **Interactive About Page:** Contains developer credentials, a custom adaptive application icon, and a clickable link to this repository.
-
-## 📸 Screenshots
-*(Note: Create an `assets/images/` folder in your repository and upload your screenshots there for these to display correctly)*
-
-| Home Screen (Light) | Result Calculation | About Page (Dark Mode) |
-| :---: | :---: | :---: |
-| ![Home](assets/images/home_light.png) | ![Result](assets/images/result.png) | ![About](assets/images/about_dark.png) |
-
-## 🛠️ Tech Stack
-* **Language:** Java / Kotlin
-* **UI System:** XML (Material Components for Android)
-* **IDE:** Android Studio
-
-## 🚀 Getting Started
-To clone and run this application locally:
-1. Open Android Studio.
-2. Select **Get from VCS** or **File > New > Project from Version Control**.
-3. Paste the repository URL: `https://github.com/cxdzy/BUDI95-Petrol-Calculator-ICT602.git`
-4. Let the Gradle sync finish, select an emulator or physical device, and click **Run**.
+## ✨ Key Features
+* **Modern Material 3 UI:** Clean, minimalist interface with dynamic receipt breakdowns.
+* **Dual Calculation Modes:** Users can calculate by exact fuel volume (Liters) or by cash spent (RM) using reverse-calculation algorithms.
+* **Instant BUDI MADANI Integration:** One-tap toggle to instantly apply the RM 1.99/L targeted subsidy.
+* **Dynamic Receipt Generation:** A hidden summary card seamlessly expands to show exact pumped volume, pump price, and applied rates.
 
 ---
-*© 2024 Petrol Calculator. All rights reserved.*
+
+## 📱 App Screenshots
+
+<p align="center">
+  <img src="screenshots/photo_2026-05-14_01-03-16.jpg" width="220" title="Home Screen">
+  <img src="screenshots/photo_2026-05-14_01-03-26.jpg" width="220" title="By Liters Calculation">
+  <img src="screenshots/photo_2026-05-14_01-03-24.jpg" width="220" title="By RM Calculation">
+  <img src="screenshots/photo_2026-05-14_01-03-21.jpg" width="220" title="About Page">
+</p>
+
+---
+
+## 🧮 Core Calculation Engine & Logic
+
+To provide a real-world user experience, this app utilizes two distinct mathematical approaches depending on how the user inputs their data at the petrol station.
+
+### 1. "By Liters" Mode (Standard Calculation)
+This mode calculates the total cost based on a known physical volume of fuel.
+* **Total Cost** = `Fuel Volume (L) × Pump Price (RM)`
+* **BUDI Rebate** = `Fuel Volume (L) × RM 1.99` *(If RON95 & Eligible)*
+* **Effective Payable** = `Total Cost - BUDI Rebate`
+
+### 2. "By RM" Mode (Reverse-Volume Algorithm)
+In Malaysia, users frequently purchase fuel by a fixed currency amount (e.g., "Isi RM30"). This mode performs a reverse-calculation to determine the actual volume of fuel dispensed into the tank, factoring in instant point-of-sale subsidies.
+* **Effective Pump Price** = `Pump Price (RM) - BUDI Subsidy (RM 1.99)`
+* **Calculated Volume (L)** = `Total Cash Spent (RM) ÷ Effective Pump Price`
+* *Result:* The app accurately demonstrates that applying the BUDI subsidy allows the same RM 30 note to purchase a significantly larger physical volume of fuel.
+
+---
+
+## 🛠️ Tech Stack
+* **Language:** Java
+* **UI/UX:** XML, Material Design Components (MDC-Android)
+* **Architecture:** Android Fragment-based navigation
+* **IDE:** Android Studio
+
+---
+
+## 👨‍💻 Developer Profile
+* **Name:** Mohamad Haziq Naqib bin Zaid
+* **Student ID:** 2025181477
+* **Course:** ICT602 - Mobile Application Development
+* **Institution:** Universiti Teknologi MARA (UiTM)
